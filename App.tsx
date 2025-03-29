@@ -1,22 +1,42 @@
 import React from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const { width, height } = Dimensions.get('window');
+// Import necessary modules for Expo compatibility
+import 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export default function App(): React.ReactElement {
+// Import the screen components
+import BucketListScreen from './screens/BucketListScreen';
+import TravelListScreen from './screens/TravelListScreen';
+import DestinationDetailScreen from './screens/DestinationDetailScreen';
+
+// Define the type for our navigation params
+type RootStackParamList = {
+  Home: undefined;
+  BucketList: undefined;
+  TravelList: undefined;
+  DestinationDetail: { destination: any };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+// Main home screen component
+const HomeScreen = ({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList, 'Home'> }) => {
   // Array of different image sources to use
   const imagesSources = [
     require('./BucketList/assets/images/Ballet.png'),
     require('./BucketList/assets/images/Chilling.png'),
     // Add paths to other images you have in your assets folder
-    // For example:
-    require('./BucketList/assets/images/Dancing.png'), // Repeated as placeholder
-    require('./BucketList/assets/images/IceCream.png'), // Repeated as placeholder
-    require('./BucketList/assets/images/LayingDown.png'), // Repeated as placeholder
-    require('./BucketList/assets/images/Plant.png'), // Repeated as placeholder
-    require('./BucketList/assets/images/Playing.png'), // Repeated as placeholder
-    require('./BucketList/assets/images/Studying.png'), // Repeated as placeholder
-    require('./BucketList/assets/images/RollerSkating.png'), // Repeated as placeholder
+    require('./BucketList/assets/images/Dancing.png'),
+    require('./BucketList/assets/images/IceCream.png'),
+    require('./BucketList/assets/images/LayingDown.png'),
+    require('./BucketList/assets/images/Plant.png'),
+    require('./BucketList/assets/images/Playing.png'),
+    require('./BucketList/assets/images/Studying.png'),
+    require('./BucketList/assets/images/RollerSkating.png'),
   ];
 
   // Create a 3x3 grid of images in the center of the screen
@@ -31,6 +51,9 @@ export default function App(): React.ReactElement {
     // Calculate grid dimensions
     const gridWidth = (columns * imageSize) + ((columns - 1) * gap);
     const gridHeight = (rows * imageSize) + ((rows - 1) * gap);
+    
+    // Get screen dimensions
+    const { width, height } = Dimensions.get('window');
     
     // Calculate starting position to center the grid
     const startX = (width - gridWidth) / 2;
@@ -76,23 +99,71 @@ export default function App(): React.ReactElement {
         />
       ))}
       
-      {/* Bottom buttons */}
+      {/* Bottom buttons with equal spacing */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Button 1 pressed')}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => navigation.navigate('BucketList')}
+        >
           <Image 
             source={require('./BucketList/assets/images/bucket.png')} 
             style={styles.buttonImage} 
           />
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Button 2 pressed')}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => console.log('Button 2 pressed')}
+        >
           <Image 
             source={require('./BucketList/assets/images/hobbies.png')} 
             style={styles.buttonImage} 
           />
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => navigation.navigate('TravelList')}
+        >
+          <Image 
+            source={require('./BucketList/assets/images/luggage.png')} 
+            style={styles.buttonImage} 
+          />
+        </TouchableOpacity>
       </View>
     </View>
+  );
+};
+
+// Main App component with navigation
+export default function App(): React.ReactElement {
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen 
+            name="Home" 
+            component={HomeScreen} 
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="BucketList" 
+            component={BucketListScreen} 
+            options={{ title: "My Bucket List" }}
+          />
+          <Stack.Screen 
+            name="TravelList" 
+            component={TravelListScreen} 
+            options={{ title: "Travel Destinations" }}
+          />
+          <Stack.Screen 
+            name="DestinationDetail" 
+            component={DestinationDetailScreen} 
+            options={({ route }) => ({ title: route.params.destination.place })}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
@@ -112,8 +183,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 40,
+    justifyContent: 'space-evenly', // Changed from space-around to space-evenly for equal spacing
+    paddingHorizontal: 20, // Reduced padding to give buttons more room
   },
   button: {
     backgroundColor: '#f0f0f0',
